@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}--Delete{% endblock %}
+{% block content %}
+<div class="container container-box">
+    <h1 style="text-align: center; color: #7D0A0A; ">Are you sure you want to delete "{{data.name}}" Forever?</h1>
+    <div style="text-align: center;">
+        <a href="{{ url_for('delete', restaurant_id=data.id) }}"><button style="background: #7D0A0A;" class="util-button">DELETE</button></a>
+        <a href="{{url_for('restaurants', restaurant_id=data.id) }}"><button style="background: #436850;" class="util-button">CANCEL</button></a>
+    </div>
+</div>
+{% endblock %}

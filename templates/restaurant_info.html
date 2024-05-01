@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
+{% block title %}--Info{% endblock %}
+{% block content %}
+<body class="bg">
+<div class="container container-box">
+    <h1>{{ data.name }}</h1>
+    <ul>
+    <li>Favorite Item: {{ data.fav_item }}</li>
+    <li>Average Price: {{ data.ave_price }}</li>
+    <li>Food Rating: {% for _ in range(data.rate_food) %}⭐{% endfor %}</li>
+    <li>Service Rating: {% for _ in range(data.rate_service) %}⭐{% endfor %}</li>
+    <li>Vibe Rating: {% for _ in range(data.rate_vibe) %}⭐{% endfor %}</li>
+    <li>Location: <a href="{{ data.location }}" class="clickable">Map URL</a></li>
+    <li>Notes:
+        <ul>
+        {% if notes: %}
+            {% for note in notes %}
+                <li>{{ note }}</li>
+            {% endfor %}
+        {% else %}
+            <li>No notes yet.</li>
+        {% endif %}
+        </ul>
+
+    </li>
+    </ul>
+    {{ render_form(form) }}
+    <br>
+    <br>
+    <hr>
+    <a href="{{ url_for('delete_conf', restaurant_id=data.id) }}"><button style="background: #7D0A0A;" class="util-button">DELETE</button></a>
+    <a href="{{ url_for('edit', restaurant_id=data.id) }}"><button style="background: #436850;" class="util-button">EDIT</button></a>
+</div>
+</body>
+{% endblock %}
