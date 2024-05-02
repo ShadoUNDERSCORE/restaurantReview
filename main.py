@@ -15,7 +15,7 @@ class Base(DeclarativeBase):
     pass
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI", "sqlite:///posts.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI", "sqlite:///restaurants.db")
 app.config['SECRET_KEY'] = os.urandom(32)
 CSRFProtect(app)
 db = SQLAlchemy(model_class=Base)
@@ -182,4 +182,4 @@ def delete_note(restaurant_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)

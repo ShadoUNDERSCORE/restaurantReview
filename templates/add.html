@@ -16,6 +16,9 @@
         <div class="col-sm-12 col-md-6 container-box">
               <p class="flash">{{ get_flashed_messages()[0] }}</p>
               {{ render_form(form) }}
+            <br>
+            <hr>
+              <a href="{{url_for('home') }}"><button style="background: #436850;" class="util-button">CANCEL</button></a>
         </div>
         <div class="col-sm-0 col-md-3"></div>
     </div>
