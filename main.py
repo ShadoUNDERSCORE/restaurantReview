@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_bootstrap import Bootstrap5
 from flask_wtf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String
 
 from forms import NewRestaurantForm, EditRestaurantForm, NewNoteForm, EditNoteForm
@@ -24,6 +24,7 @@ Bootstrap5(app)
 
 
 class Restaurant(db.Model):
+    __tablename__ = "restaurants"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     fav_item: Mapped[str] = mapped_column(String, nullable=True)
@@ -32,7 +33,15 @@ class Restaurant(db.Model):
     rate_service: Mapped[int] = mapped_column(Integer, nullable=False)
     rate_vibe: Mapped[int] = mapped_column(Integer, nullable=False)
     location: Mapped[str] = mapped_column(String, nullable=True)
-    notes: Mapped[str] = mapped_column(String, nullable=True)
+    notes = relationship("Note", back_populates="restaurant")
+
+
+class Note(db.Model):
+    __tablename__ = "notes"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    note: Mapped[str] = mapped_column(String, nullable=False)
+    restaurant_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("restaurants.id"))
+    restaurant = relationship("Restaurant", back_populates="notes")
 
 
 with app.app_context():
@@ -89,22 +98,15 @@ def restaurants():
 @app.route("/restaurant/<restaurant_id>", methods=["GET", "POST"])
 def restaurant_info(restaurant_id):
     form = NewNoteForm()
-    restaurant_data = db.session.execute(db.select(Restaurant).where(Restaurant.id == restaurant_id)).scalar()
-    notes = restaurant_data.notes
-    if notes:
-        notes = notes.split("ʢ")[1:]
-    if form.validate_on_submit() and notes:
-        restaurant_to_update = db.session.execute(db.select(Restaurant).where(Restaurant.id == restaurant_id)).scalar()
-        restaurant_to_update.notes += f"ʢ{form.notes.data}"
-        db.session.commit()
-        return redirect(url_for("restaurant_info", restaurant_id=restaurant_id))
-    elif form.validate_on_submit() and not notes:
-        restaurant_to_update = db.session.execute(db.select(Restaurant).where(Restaurant.id == restaurant_id)).scalar()
-        restaurant_to_update.notes = f"ʢ{form.notes.data}"
+    restaurant = db.session.execute(db.select(Restaurant).where(Restaurant.id == restaurant_id)).scalar()
+    notes = db.session.execute(db.select(Note).where(restaurant_id == restaurant_id)).scalars()
+    if form.validate_on_submit():
+        new_note = Note(note=form.note.data, restaurant_id=restaurant_id)
+        db.session.add(new_note)
         db.session.commit()
         return redirect(url_for("restaurant_info", restaurant_id=restaurant_id))
     return render_template("restaurant_info.html",
-                           data=restaurant_data, form=form, notes=notes)
+                           restaurant=restaurant, form=form, notes=notes)
 
 
 # Update
@@ -142,43 +144,33 @@ def delete_conf(restaurant_id):
 @app.route("/delete/<restaurant_id>")
 def delete(restaurant_id):
     restaurant_to_delete = db.session.execute(db.select(Restaurant).where(Restaurant.id == restaurant_id)).scalar()
+    notes_to_delete = db.session.execute(db.select(Note).where(restaurant_id == restaurant_id)).scalars()
     db.session.delete(restaurant_to_delete)
+    for note in notes_to_delete:
+        db.session.delete(note)
     db.session.commit()
     return redirect(url_for("restaurants"))
 
 
 # Notes
-# TODO: Make Notes a child (One-to-Many) DB Table
-@app.route("/edit_notes/<restaurant_id>", methods=["GET", "POST"])
-def edit_notes(restaurant_id):
-    if request.args.get("note_id"):
-        note_id = int(request.args.get("note_id"))
-    else:
-        note_id = 0
-    restaurant_to_edit = db.session.execute(db.select(Restaurant).where(Restaurant.id == restaurant_id)).scalar()
-    notes_list = restaurant_to_edit.notes.split("ʢ")
-
-    form = EditNoteForm("POST", notes_list[note_id])
-    if form.validate_on_submit():
-        notes_list[note_id] = form.notes.data
-        restaurant_to_edit.notes = "ʢ".join(notes_list)
-        db.session.commit()
-        return redirect(url_for("edit_notes", restaurant_id=restaurant_id))
-    else:
-        form = EditNoteForm("GET", notes_list[note_id])
-        return render_template("edit_notes.html",
-                               restaurant=restaurant_to_edit, notes=notes_list, form=form, note_id=note_id)
-
-
-@app.route("/delete_note/<restaurant_id>")
-def delete_note(restaurant_id):
-    note_id = int(request.args.get("note_id"))
+@app.route("/edit_notes/<restaurant_id>/<note_id>", methods=["GET", "POST"])
+def edit_notes(restaurant_id, note_id):
+    old_note = db.session.execute(db.select(Note).where(Note.id == note_id)).scalar()
     restaurant = db.session.execute(db.select(Restaurant).where(Restaurant.id == restaurant_id)).scalar()
-    notes_list = restaurant.notes.split("ʢ")
-    notes_list.pop(note_id)
-    restaurant.notes = "ʢ".join(notes_list)
+    form = EditNoteForm(method=request.method, old_note=old_note.note)
+    if form.validate_on_submit():
+        db.session.query(Note).filter(Note.id == note_id).update({"note": form.note.data})
+        db.session.commit()
+        return redirect(url_for("restaurant_info", restaurant_id=restaurant_id))
+    return render_template("edit_notes.html", form=form, restaurant=restaurant, note_id=note_id)
+
+
+@app.route("/delete_note/<restaurant_id>/<note_id>")
+def delete_note(restaurant_id, note_id):
+    note_to_del = db.session.execute(db.select(Note).where(Note.id == note_id)).scalar()
+    db.session.delete(note_to_del)
     db.session.commit()
-    return redirect(url_for("edit_notes", restaurant_id=restaurant_id, note_id=0))
+    return redirect(url_for("restaurant_info", restaurant_id=restaurant_id))
 
 
 if __name__ == "__main__":

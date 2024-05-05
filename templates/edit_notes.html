@@ -2,20 +2,11 @@
 {% from 'bootstrap5/form.html' import render_form %}
 {% block title %}--Edit{% endblock %}
 {% block content %}
-{% if note_id > 0 %}
 <div class="container container-box">
     {{ render_form(form) }}
     <hr>
-    <a href="{{ url_for('edit_notes', restaurant_id=restaurant.id) }}"><button style="background: #7D0A0A" class="util-button">CANCEL</button></a>
+    <a href="{{ url_for('restaurant_info', restaurant_id=restaurant.id) }}"><button style="background: #7D0A0A" class="util-button">CANCEL</button></a>
     <a href="{{ url_for('delete_note', restaurant_id=restaurant.id, note_id=note_id) }}"><button style="background: #7D0A0A" class="util-button">DELETE</button></a>
 
 </div>
-{% else: %}
-<div class="container container-box">
-    {% for note in notes %}
-    <p><a href="{{ url_for('edit_notes', restaurant_id=restaurant.id, note_id=notes.index(note)) }}" class="note">{{ note }}</a></p>
-    <hr>
-    {% endfor %}
-</div>
-{% endif %}
 {% endblock %}

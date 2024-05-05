@@ -40,17 +40,17 @@ class EditRestaurantForm(FlaskForm):
 
 
 class NewNoteForm(FlaskForm):
-    notes = TextAreaField("Add Notes", validators=[DataRequired()])
+    note = TextAreaField("Add Bullet Notes", validators=[DataRequired()])
     submit = SubmitField("Add")
 
 
 class EditNoteForm(FlaskForm):
-    notes = TextAreaField("Edit Note")
+    note = TextAreaField("Edit Note")
     submit = SubmitField("Save")
 
     def __init__(self, method, old_note="Type a note..."):
         super(EditNoteForm, self).__init__()
-        self.notes.default = old_note
+        self.note.default = old_note
         self.method = method
         if self.method == "GET":
             self.process()

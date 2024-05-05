@@ -6,7 +6,6 @@
         <table class="table">
             <thead class="thead-dark">
                 <tr>
-                  <th scope="col" class="hide_on_mobile hide_on_mid">#</th>
                   <th scope="col">Name</th>
                   <th scope="col" class="hide_on_mobile hide_on_mid">Favorite Item</th>
                   <th scope="col" class="hide_on_mobile">Average Price</th>
@@ -19,7 +18,6 @@
             <tbody>
             {% for restaurant in data %}
             <tr>
-              <th scope="row" class="hide_on_mobile hide_on_mid">{{ restaurant.id }}</th>
               <td><a href="{{ url_for('restaurant_info', restaurant_id=restaurant.id) }}" class="clickable">{{ restaurant.name }}</a></td>
               <td class="hide_on_mobile hide_on_mid">{{ restaurant.fav_item }}</td>
               <td class="hide_on_mobile">{{ restaurant.ave_price }}</td>
