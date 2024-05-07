@@ -1,6 +1,17 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField, TextAreaField
+from wtforms import StringField, SubmitField, SelectField, TextAreaField, PasswordField
 from wtforms.validators import DataRequired
+
+
+class AdminPasswdForm(FlaskForm):
+    password = PasswordField("Password", validators=[DataRequired()])
+    submit = SubmitField("Create")
+
+
+class AdminLoginForm(FlaskForm):
+    username = StringField("Username", validators=[DataRequired()])
+    password = PasswordField("Password", validators=[DataRequired()])
+    submit = SubmitField("Login")
 
 
 class NewRestaurantForm(FlaskForm):

@@ -22,6 +22,7 @@ h1 {
 }
 
 .btn-get-started {
+    width: 300px;
     text-transform: uppercase;
     font-weight: 500;
     font-size: 16px;

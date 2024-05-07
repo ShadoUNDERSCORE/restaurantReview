@@ -26,6 +26,11 @@
       </a>
 
       <ul class="nav nav-pills">
+          {% if current_user.id == "admin" %}
+        <li class="nav-item hide_on_home"><a href="{{ url_for('logout') }}" class="nav-link">Logout</a></li>
+          {% else %}
+        <li class="nav-item hide_on_home"><a href="{{ url_for('login') }}" class="nav-link">Admin Login</a></li>
+          {% endif %}
         <li class="nav-item hide_on_home"><a href="{{ url_for('restaurants') }}" class="nav-link">Restaurants</a></li>
         <li class="nav-item hide_on_home"><a href="{{ url_for('add') }}" class="nav-link">Add</a></li>
       </ul>

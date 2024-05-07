@@ -1,25 +1,32 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from flask_bootstrap import Bootstrap5
 from flask_wtf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin, LoginManager, login_user, logout_user, current_user
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
+from dotenv import load_dotenv, set_key
 
-from forms import NewRestaurantForm, EditRestaurantForm, NewNoteForm, EditNoteForm
-
-app = Flask(__name__)
+from forms import NewRestaurantForm, EditRestaurantForm, NewNoteForm, EditNoteForm, AdminLoginForm, AdminPasswdForm
 
 
 class Base(DeclarativeBase):
     pass
 
 
+app = Flask(__name__)
+load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI", "sqlite:///restaurants.db")
 app.config['SECRET_KEY'] = os.urandom(32)
+admin_passwd = os.environ.get("ADMIN_PASSWD")
 CSRFProtect(app)
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
 Bootstrap5(app)
 
 
@@ -44,6 +51,14 @@ class Note(db.Model):
     restaurant = relationship("Restaurant", back_populates="notes")
 
 
+class Admin(UserMixin):
+    def __init__(self, username, password):
+        self.id = username
+        self.passwd = password
+
+
+admin_user = Admin("admin", admin_passwd)
+
 with app.app_context():
     db.create_all()
 
@@ -57,14 +72,56 @@ def is_money(money: str,):
     return f'${"".join(ave_price)}'
 
 
-@app.route("/")
+@login_manager.user_loader
+def load_user(user_id):
+    # Since we only have one user, return the admin user if the user_id matches
+    if user_id == admin_user.id:
+        return admin_user
+    else:
+        return None
+
+
+def admin_only(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if not isinstance(current_user, Admin):
+            abort(403)
+        return f(*args, **kwargs)
+    return wrapper
+
+
+@app.route("/", methods=["GET", "POST"])
 def home():
-    return render_template("index.html")
+    if admin_passwd:
+        return render_template("index.html")
+    else:
+        form = AdminPasswdForm()
+        if form.validate_on_submit():
+            set_key(".env", "ADMIN_PASSWD", generate_password_hash(form.password.data))
+            return "<h1>SUCCESS! RESTART SERVER NOW!</h1>"
+        return render_template("create_admin.html", form=form)
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    form = AdminLoginForm()
+    if form.validate_on_submit():
+        if form.username.data == admin_user.id and check_password_hash(admin_user.passwd, form.password.data):
+            login_user(admin_user)
+            return redirect(url_for("home"))
+    return render_template("admin_login.html", form=form)
+
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect(url_for("home"))
 
 
 # Restaurant Data CRUD Systems
 # Create
 @app.route("/add", methods=["GET", "POST"])
+@admin_only
 def add():
     form = NewRestaurantForm()
     if form.validate_on_submit():
@@ -111,6 +168,7 @@ def restaurant_info(restaurant_id):
 
 # Update
 @app.route("/edit/<restaurant_id>", methods=["GET", "POST"])
+@admin_only
 def edit(restaurant_id):
     form_data = db.session.execute(db.select(Restaurant).where(Restaurant.id == restaurant_id)).scalar()
     form = EditRestaurantForm(data=form_data, method=request.method)
@@ -136,12 +194,14 @@ def edit(restaurant_id):
 
 # Delete
 @app.route("/confirm-delete/<restaurant_id>")
+@admin_only
 def delete_conf(restaurant_id):
     restaurant_data = db.session.execute(db.select(Restaurant).where(Restaurant.id == restaurant_id)).scalar()
     return render_template("delete_confirm.html", data=restaurant_data)
 
 
 @app.route("/delete/<restaurant_id>")
+@admin_only
 def delete(restaurant_id):
     restaurant_to_delete = db.session.execute(db.select(Restaurant).where(Restaurant.id == restaurant_id)).scalar()
     notes_to_delete = db.session.execute(db.select(Note).where(restaurant_id == restaurant_id)).scalars()
@@ -154,6 +214,7 @@ def delete(restaurant_id):
 
 # Notes
 @app.route("/edit_notes/<restaurant_id>/<note_id>", methods=["GET", "POST"])
+@admin_only
 def edit_notes(restaurant_id, note_id):
     old_note = db.session.execute(db.select(Note).where(Note.id == note_id)).scalar()
     restaurant = db.session.execute(db.select(Restaurant).where(Restaurant.id == restaurant_id)).scalar()
@@ -166,6 +227,7 @@ def edit_notes(restaurant_id, note_id):
 
 
 @app.route("/delete_note/<restaurant_id>/<note_id>")
+@admin_only
 def delete_note(restaurant_id, note_id):
     note_to_del = db.session.execute(db.select(Note).where(Note.id == note_id)).scalar()
     db.session.delete(note_to_del)
