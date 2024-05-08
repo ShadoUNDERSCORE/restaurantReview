@@ -21,10 +21,13 @@
               <td><a href="{{ url_for('restaurant_info', restaurant_id=restaurant.id) }}" class="clickable">{{ restaurant.name }}</a></td>
               <td class="hide_on_mobile hide_on_mid">{{ restaurant.fav_item }}</td>
               <td class="hide_on_mobile">{{ restaurant.ave_price }}</td>
-              <td>{% for _ in range(restaurant.rate_food) %}⭐{% endfor %}</td>
-              <td class="hide_on_mobile">{% for _ in range(restaurant.rate_service) %}⭐{% endfor %}</td>
-              <td class="hide_on_mobile hide_on_mid">{% for _ in range(restaurant.rate_vibe) %}⭐{% endfor %}</td>
-              <td class="hide_on_mobile hide_on_mid"><a href="{{ restaurant.location }}" class="clickable">Map Link</a></td>
+              <td>{% for _ in range(restaurant.rate_food) %}
+                  <img src="{{ url_for('static', filename='star.ico') }}">{% endfor %}</td>
+              <td class="hide_on_mobile">{% for _ in range(restaurant.rate_service) %}
+                  <img src="{{ url_for('static', filename='star.ico') }}">{% endfor %}</td>
+              <td class="hide_on_mobile hide_on_mid">{% for _ in range(restaurant.rate_vibe) %}
+                  <img src="{{ url_for('static', filename='star.ico') }}">{% endfor %}</td>
+              <td class="hide_on_mobile hide_on_mid"><a href="{{ restaurant.location }}" class="map">Map Link</a></td>
             </tr>
             {% endfor %}
             </tbody>

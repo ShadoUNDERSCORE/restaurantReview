@@ -74,7 +74,6 @@ def is_money(money: str,):
 
 @login_manager.user_loader
 def load_user(user_id):
-    # Since we only have one user, return the admin user if the user_id matches
     if user_id == admin_user.id:
         return admin_user
     else:

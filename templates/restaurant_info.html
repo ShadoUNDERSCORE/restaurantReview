@@ -8,10 +8,13 @@
     <ul>
     <li>Favorite Item: {{ restaurant.fav_item }}</li>
     <li>Average Price: {{ restaurant.ave_price }}</li>
-    <li>Food Rating: {% for _ in range(restaurant.rate_food) %}⭐{% endfor %}</li>
-    <li>Service Rating: {% for _ in range(restaurant.rate_service) %}⭐{% endfor %}</li>
-    <li>Vibe Rating: {% for _ in range(restaurant.rate_vibe) %}⭐{% endfor %}</li>
-    <li>Location: <a href="{{ restaurant.location }}" class="clickable">Map URL</a></li>
+    <li>Food Rating: {% for _ in range(restaurant.rate_food) %}
+        <img src="{{ url_for('static', filename='star.ico') }}">{% endfor %}</li>
+    <li>Service Rating: {% for _ in range(restaurant.rate_service) %}
+        <img src="{{ url_for('static', filename='star.ico') }}">{% endfor %}</li>
+    <li>Vibe Rating: {% for _ in range(restaurant.rate_vibe) %}
+        <img src="{{ url_for('static', filename='star.ico') }}"> {% endfor %}</li>
+    <li>Location: <a href="{{ restaurant.location }}" class="map">Map URL</a></li>
     <li>Notes:
         <ul>
         {% if notes: %}

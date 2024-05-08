@@ -3,8 +3,8 @@
 {% block content %}
 <body class="bg" id="home">
     <div class="hero-container aos-init aos-animate" data-aos="zoom-in" data-aos-delay="100">
-      <h1>Delhotal's Restaurant Reviews</h1>
-      <h2>Keep track of the restaurants you visit</h2>
+      <h1 class="vintage-font" style="padding: 5px">Restaurant Reviews</h1>
+      <p class="typewriter-font">Keep track of the restaurants you visit</p>
       <a href="{{ url_for('restaurants') }}" class="btn-get-started">See Restaurants</a>
       <a href="{{ url_for('add') }}" class="btn-get-started">Add Restaurant</a>
         {% if current_user.id == "admin" %}

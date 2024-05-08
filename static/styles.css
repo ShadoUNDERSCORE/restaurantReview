@@ -1,11 +1,30 @@
+@font-face {
+    font-family: vintage;
+    src: url("../static/Vintage.ttf");
+}
+
+.vintage-font {
+    font-family: vintage;
+}
+
+@font-face {
+    font-family: typewriter;
+    src: url("../static/Typewriter.ttf");
+}
+
+.typewriter-font {
+    font-family: typewriter;
+}
+
+@font-face {
+    font-family: emoji;
+    src: url("../static/NotoEmoji.ttf");
+}
+
 body {
     background: #FDF0D1;
     color: #643843;
-    font-family: "Deja Vu", sans-serif;
-}
-
-h1 {
-    font-family: "Deja Vu";
+    font-family: "Arial";
 }
 
 .hero-container {
@@ -22,6 +41,7 @@ h1 {
 }
 
 .btn-get-started {
+    text-decoration: none;
     width: 300px;
     text-transform: uppercase;
     font-weight: 500;
@@ -39,7 +59,6 @@ h1 {
 a {
     font-family: "Deja Vu", sans-serif;
     color: #643843;
-    text-decoration: none;
 }
 
 .btn-get-started:hover,
@@ -52,6 +71,7 @@ a {
 }
 
 .clickable {
+    text-decoration: none;
     color: None;
     background-color: None;
     border: 2px solid #643843;
@@ -165,6 +185,10 @@ a.note:focus {
 }
 
 .flash {
-  color: #ee6f57;
-  text-align: center;
+    color: #ee6f57;
+    text-align: center;
+}
+
+map {
+    text-decoration: underline;
 }
