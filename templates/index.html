@@ -6,8 +6,8 @@
       <h1 class="vintage-font" style="padding: 5px">Restaurant Reviews</h1>
       <p class="typewriter-font">Keep track of the restaurants you visit</p>
       <a href="{{ url_for('restaurants') }}" class="btn-get-started">See Restaurants</a>
-      <a href="{{ url_for('add') }}" class="btn-get-started">Add Restaurant</a>
         {% if current_user.id == "admin" %}
+      <a href="{{ url_for('add') }}" class="btn-get-started">Add Restaurant</a>
       <a href="{{ url_for('logout') }}" class="btn-get-started">Logout</a>
         {% else %}
       <a href="{{ url_for('login') }}" class="btn-get-started">Admin Login</a>

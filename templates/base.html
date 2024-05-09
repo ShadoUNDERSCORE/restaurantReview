@@ -32,7 +32,9 @@
         <li class="nav-item hide_on_home"><a href="{{ url_for('login') }}" class="nav-link">Admin Login</a></li>
           {% endif %}
         <li class="nav-item hide_on_home"><a href="{{ url_for('restaurants') }}" class="nav-link">Restaurants</a></li>
+          {% if current_user.id == "admin" %}
         <li class="nav-item hide_on_home"><a href="{{ url_for('add') }}" class="nav-link">Add</a></li>
+          {% endif %}
       </ul>
     </header>
   </div>

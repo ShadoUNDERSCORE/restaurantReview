@@ -155,14 +155,15 @@ def restaurants():
 def restaurant_info(restaurant_id):
     form = NewNoteForm()
     restaurant = db.session.execute(db.select(Restaurant).where(Restaurant.id == restaurant_id)).scalar()
-    notes = db.session.execute(db.select(Note).where(restaurant_id == restaurant_id)).scalars()
+    notes = db.session.execute(db.select(Note).where(Note.restaurant_id == restaurant_id)).scalars()
+    notes_list = [note.note for note in notes]
     if form.validate_on_submit():
         new_note = Note(note=form.note.data, restaurant_id=restaurant_id)
         db.session.add(new_note)
         db.session.commit()
         return redirect(url_for("restaurant_info", restaurant_id=restaurant_id))
     return render_template("restaurant_info.html",
-                           restaurant=restaurant, form=form, notes=notes)
+                           restaurant=restaurant, form=form, notes=notes_list)
 
 
 # Update
